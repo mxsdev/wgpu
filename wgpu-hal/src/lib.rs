@@ -266,6 +266,8 @@ pub trait Surface<A: Api>: WasmNotSend + WasmNotSync {
         timeout: Option<std::time::Duration>,
     ) -> Result<Option<AcquiredSurfaceTexture<A>>, SurfaceError>;
     unsafe fn discard_texture(&mut self, texture: A::SurfaceTexture);
+
+    fn query_presentation_statistics(&self) -> Vec<wgt::PresentationStatistics>;
 }
 
 pub trait Adapter<A: Api>: WasmNotSend + WasmNotSync {

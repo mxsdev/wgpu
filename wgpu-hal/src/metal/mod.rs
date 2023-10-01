@@ -26,6 +26,7 @@ mod surface;
 mod time;
 
 use std::{
+    collections::VecDeque,
     fmt, iter, ops,
     ptr::NonNull,
     sync::{atomic, Arc},
@@ -333,6 +334,7 @@ pub struct Surface {
     swapchain_format: Option<wgt::TextureFormat>,
     extent: wgt::Extent3d,
     main_thread_id: thread::ThreadId,
+    presentation_stats: Arc<Mutex<VecDeque<wgt::PresentationStatistics>>>,
     // Useful for UI-intensive applications that are sensitive to
     // window resizing.
     pub present_with_transaction: bool,

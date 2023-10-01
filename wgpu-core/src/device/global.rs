@@ -2363,6 +2363,23 @@ impl<G: GlobalIdentityHandlerFactory> Global<G> {
         Some(error)
     }
 
+    pub fn surface_query_presentation_statistics<A: HalApi>(
+        &self,
+        surface_id: SurfaceId,
+    ) -> Result<Vec<wgt::PresentationStatistics>, present::SurfaceError> {
+        let mut token = Token::root();
+
+        let (mut surface_guard, mut token) = self.surfaces.write(&mut token);
+
+        let surface = surface_guard
+            .get_mut(surface_id)
+            .map_err(|_| present::SurfaceError::Invalid)?;
+
+        let suf = A::get_surface(surface).unwrap();
+
+        Ok(hal::Surface::query_presentation_statistics(&suf.raw))
+    }
+
     #[cfg(feature = "replay")]
     /// Only triange suspected resource IDs. This helps us to avoid ID collisions
     /// upon creating new resources when re-playing a trace.

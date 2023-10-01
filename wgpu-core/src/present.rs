@@ -100,6 +100,13 @@ pub enum ConfigureSurfaceError {
     StuckGpu,
 }
 
+#[derive(Clone, Debug, Error)]
+#[non_exhaustive]
+pub enum QueryPresentationStatisticsError {
+    #[error("Surface is invalid")]
+    Invalid,
+}
+
 impl From<WaitIdleError> for ConfigureSurfaceError {
     fn from(e: WaitIdleError) -> Self {
         match e {

@@ -181,6 +181,11 @@ pub trait Context: Debug + WasmNotSend + WasmNotSync + Sized {
         texture: &Self::TextureId,
         detail: &Self::SurfaceOutputDetail,
     );
+    fn surface_query_presentation_statistics(
+        &self,
+        surface: &Self::SurfaceId,
+        surface_data: &Self::SurfaceData,
+    ) -> Vec<wgt::PresentationStatistics>;
 
     fn device_features(&self, device: &Self::DeviceId, device_data: &Self::DeviceData) -> Features;
     fn device_limits(&self, device: &Self::DeviceId, device_data: &Self::DeviceData) -> Limits;
@@ -1277,6 +1282,11 @@ pub(crate) trait DynContext: Debug + WasmNotSend + WasmNotSync {
     );
     fn surface_present(&self, texture: &ObjectId, detail: &dyn AnyWasmNotSendSync);
     fn surface_texture_discard(&self, texture: &ObjectId, detail: &dyn AnyWasmNotSendSync);
+    fn surface_query_presentation_statistics(
+        &self,
+        surface: &ObjectId,
+        surface_data: &crate::Data,
+    ) -> Vec<wgt::PresentationStatistics>;
 
     fn device_features(&self, device: &ObjectId, device_data: &crate::Data) -> Features;
     fn device_limits(&self, device: &ObjectId, device_data: &crate::Data) -> Limits;
@@ -2227,6 +2237,16 @@ where
     fn surface_texture_discard(&self, texture: &ObjectId, detail: &dyn AnyWasmNotSendSync) {
         let texture = <T::TextureId>::from(*texture);
         Context::surface_texture_discard(self, &texture, detail.downcast_ref().unwrap())
+    }
+
+    fn surface_query_presentation_statistics(
+        &self,
+        surface: &ObjectId,
+        surface_data: &crate::Data,
+    ) -> Vec<wgt::PresentationStatistics> {
+        let surface = <T::SurfaceId>::from(*surface);
+        let surface_data = downcast_ref(surface_data);
+        Context::surface_query_presentation_statistics(self, &surface, surface_data)
     }
 
     fn device_features(&self, device: &ObjectId, device_data: &crate::Data) -> Features {

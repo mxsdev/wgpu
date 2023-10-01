@@ -2,6 +2,7 @@
 
 use std::{mem, os::raw::c_void, ptr::NonNull, sync::Once, thread};
 
+use block;
 use core_graphics_types::{
     base::CGFloat,
     geometry::{CGRect, CGSize},
@@ -15,6 +16,7 @@ use objc::{
     sel, sel_impl,
 };
 use parking_lot::Mutex;
+use wgt::{CompositionType, PresentationStatistics, PresentationTimestamp};
 
 #[cfg(target_os = "macos")]
 #[cfg_attr(feature = "link", link(name = "QuartzCore", kind = "framework"))]
@@ -67,6 +69,7 @@ impl super::Surface {
             extent: wgt::Extent3d::default(),
             main_thread_id: thread::current().id(),
             present_with_transaction: false,
+            presentation_stats: Default::default(),
         }
     }
 
@@ -251,6 +254,31 @@ impl crate::Surface<super::Api> for super::Surface {
             None => return Ok(None),
         };
 
+        let presentation_stats_queue = self.presentation_stats.clone();
+
+        let presented_handler = block::ConcreteBlock::new(move |drawable: &metal::DrawableRef| {
+            let presented_time_secs: f64 = msg_send![drawable, presentedTime];
+
+            let presented_timestamp = PresentationTimestamp(
+                std::time::Duration::from_secs_f64(presented_time_secs).as_nanos(),
+            );
+
+            let presentation_stats = PresentationStatistics {
+                presentation_start: presented_timestamp.into(),
+                presentation_end: Default::default(),
+                earliest_present_time: Default::default(),
+                presentation_margin: Default::default(),
+                composition_type: CompositionType::Composed,
+            };
+
+            presentation_stats_queue
+                .lock()
+                .push_front(presentation_stats);
+        })
+        .copy();
+
+        let _: () = msg_send![drawable.as_ref(), addPresentedHandler: presented_handler];
+
         let suf_texture = super::SurfaceTexture {
             texture: super::Texture {
                 raw: texture,
@@ -275,4 +303,8 @@ impl crate::Surface<super::Api> for super::Surface {
     }
 
     unsafe fn discard_texture(&mut self, _texture: super::SurfaceTexture) {}
+
+    fn query_presentation_statistics(&self) -> Vec<PresentationStatistics> {
+        self.presentation_stats.lock().drain(..).collect()
+    }
 }
