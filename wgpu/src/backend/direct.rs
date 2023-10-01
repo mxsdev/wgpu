@@ -828,6 +828,25 @@ impl crate::Context for Context {
         }
     }
 
+    fn surface_query_presentation_statistics(
+        &self,
+        surface: &Self::SurfaceId,
+        surface_data: &Self::SurfaceData,
+    ) -> Vec<wgt::PresentationStatistics> {
+        let global = &self.0;
+        let device_id = surface_data
+            .configured_device
+            .lock()
+            .expect("Surface was not configured?");
+
+        match wgc::gfx_select!(
+            device_id => global.surface_query_presentation_statistics(*surface)
+        ) {
+            Ok(stats) => stats,
+            Err(err) => self.handle_error_fatal(err, "Surface::query_presentation_statistics"),
+        }
+    }
+
     fn device_features(
         &self,
         device: &Self::DeviceId,

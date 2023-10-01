@@ -73,6 +73,10 @@ impl crate::Surface<Api> for Context {
         Ok(None)
     }
     unsafe fn discard_texture(&mut self, texture: Resource) {}
+
+    fn query_presentation_statistics(&self) -> Vec<wgt::PresentationStatistics> {
+        panic!()
+    }
 }
 
 impl crate::Adapter<Api> for Context {

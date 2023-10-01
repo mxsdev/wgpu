@@ -940,4 +940,8 @@ impl crate::Surface<super::Api> for super::Surface {
     }
 
     unsafe fn discard_texture(&mut self, _texture: super::SurfaceTexture) {}
+
+    fn query_presentation_statistics(&self) -> Vec<wgt::PresentationStatistics> {
+        panic!()
+    }
 }

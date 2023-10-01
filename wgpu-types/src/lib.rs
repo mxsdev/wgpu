@@ -4857,6 +4857,27 @@ impl PresentationTimestamp {
     }
 }
 
+#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
+pub struct PresentationStatistics {
+    pub presentation_start: PresentationTimestamp,
+    /// Only available on IPresentationManager
+    pub presentation_end: Option<PresentationTimestamp>,
+    /// Only available on VK_GOOGLE_display_timing
+    pub earliest_present_time: Option<PresentationTimestamp>,
+    /// Only available on VK_GOOGLE_display_timing
+    pub presentation_margin: Option<PresentationTimestamp>,
+    pub composition_type: CompositionType,
+}
+
+#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
+pub enum CompositionType {
+    /// CAMetalLayer is always Composed
+    Composed,
+    Independent,
+    /// Vulkan, DXGI is always unknown
+    Unknown,
+}
+
 /// RGBA double precision color.
 ///
 /// This is not to be used as a generic color type, only for specific wgpu interfaces.

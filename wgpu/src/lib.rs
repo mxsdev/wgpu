@@ -4998,6 +4998,11 @@ impl Surface {
                 )
         }
     }
+
+    pub fn query_presentation_statistics(&self) -> Vec<wgt::PresentationStatistics> {
+        self.context
+            .surface_query_presentation_statistics(&self.id, self.data.as_ref())
+    }
 }
 
 /// Opaque globally-unique identifier

@@ -5,7 +5,7 @@ use crate::{
     hub::Token,
     id::{AdapterId, DeviceId, SurfaceId, Valid},
     identity::{GlobalIdentityHandlerFactory, Input},
-    present::Presentation,
+    present::{Presentation, SurfaceError},
     LabelHelpers, LifeGuard, Stored, DOWNLEVEL_WARNING_MESSAGE,
 };
 
