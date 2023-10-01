@@ -624,6 +624,7 @@ impl crate::Queue<Api> for Queue {
         &mut self,
         surface: &mut Surface,
         texture: SurfaceTexture,
+        _presentation_descriptor: &wgt::PresentationDescriptor,
     ) -> Result<(), crate::SurfaceError> {
         let ssc = surface.swapchain.as_ref().unwrap();
 

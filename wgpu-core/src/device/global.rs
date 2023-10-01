@@ -2343,6 +2343,10 @@ impl<G: GlobalIdentityHandlerFactory> Global<G> {
                     break match error {
                         hal::SurfaceError::Outdated | hal::SurfaceError::Lost => E::InvalidSurface,
                         hal::SurfaceError::Device(error) => E::Device(error.into()),
+                        hal::SurfaceError::UnsupportedPresentationDelay(delay) => {
+                            log::error!("unsupported presentation delay: {:?}", delay);
+                            E::InvalidSurface
+                        }
                         hal::SurfaceError::Other(message) => {
                             log::error!("surface configuration failed: {}", message);
                             E::InvalidSurface

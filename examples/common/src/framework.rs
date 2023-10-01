@@ -387,7 +387,7 @@ fn start<E: Example>(
 
                 example.render(&view, &device, &queue, &spawner);
 
-                frame.present();
+                frame.present(&Default::default());
 
                 #[cfg(target_arch = "wasm32")]
                 {

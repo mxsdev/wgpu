@@ -148,6 +148,8 @@ pub enum SurfaceError {
     Outdated,
     #[error(transparent)]
     Device(#[from] DeviceError),
+    #[error("Unsupported presentation delay: {0}")]
+    UnsupportedPresentationDelay(wgt::PresentationDelay),
     #[error("Other reason: {0}")]
     Other(&'static str),
 }
@@ -406,6 +408,7 @@ pub trait Queue<A: Api>: WasmNotSend + WasmNotSync {
         &mut self,
         surface: &mut A::Surface,
         texture: A::SurfaceTexture,
+        presentation_descriptor: &wgt::PresentationDescriptor,
     ) -> Result<(), SurfaceError>;
     unsafe fn get_timestamp_period(&self) -> f32;
 }

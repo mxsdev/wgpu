@@ -142,7 +142,7 @@ async fn run(event_loop: EventLoop<()>, viewports: Vec<(Window, wgpu::Color)>) {
                     }
 
                     queue.submit(Some(encoder.finish()));
-                    frame.present();
+                    frame.present(&Default::default());
                 }
             }
             Event::WindowEvent {

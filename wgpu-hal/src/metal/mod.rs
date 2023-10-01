@@ -36,6 +36,7 @@ use std::{
 use arrayvec::ArrayVec;
 use bitflags::bitflags;
 use metal::foreign_types::ForeignTypeRef as _;
+use objc::{msg_send, sel, sel_impl};
 use parking_lot::Mutex;
 
 #[derive(Clone)]
@@ -411,6 +412,7 @@ impl crate::Queue<Api> for Queue {
         &mut self,
         _surface: &mut Surface,
         texture: SurfaceTexture,
+        presentation_descriptor: &wgt::PresentationDescriptor,
     ) -> Result<(), crate::SurfaceError> {
         let queue = &self.raw.lock();
         objc::rc::autoreleasepool(|| {
@@ -419,7 +421,28 @@ impl crate::Queue<Api> for Queue {
 
             // https://developer.apple.com/documentation/quartzcore/cametallayer/1478157-presentswithtransaction?language=objc
             if !texture.present_with_transaction {
-                command_buffer.present_drawable(&texture.drawable);
+                let drawable: &metal::DrawableRef = &texture.drawable;
+
+                match presentation_descriptor.presentation_delay {
+                    wgt::PresentationDelay::NoDelay => command_buffer.present_drawable(drawable),
+
+                    wgt::PresentationDelay::ScheduleTime(t) => {
+                        let time_secs = t.0 as f64 / 1e+9;
+                        let _: () =
+                            msg_send![command_buffer, presentDrawable: drawable atTime: time_secs];
+                    }
+
+                    wgt::PresentationDelay::ScheduleMinimumDuration(duration) => {
+                        let duration_secs = duration.as_secs_f64();
+                        let _: () = msg_send![command_buffer, presentDrawable: drawable afterMinimumDuration: duration_secs];
+                    }
+
+                    _ => {
+                        return Err(crate::SurfaceError::UnsupportedPresentationDelay(
+                            presentation_descriptor.presentation_delay,
+                        ))
+                    }
+                }
             }
 
             command_buffer.commit();
@@ -428,7 +451,9 @@ impl crate::Queue<Api> for Queue {
                 command_buffer.wait_until_scheduled();
                 texture.drawable.present();
             }
-        });
+
+            Ok(())
+        })?;
         Ok(())
     }
 

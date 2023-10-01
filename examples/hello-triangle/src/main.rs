@@ -131,7 +131,7 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
                 }
 
                 queue.submit(Some(encoder.finish()));
-                frame.present();
+                frame.present(&Default::default());
             }
             Event::WindowEvent {
                 event: WindowEvent::CloseRequested,

@@ -115,6 +115,7 @@ impl crate::Queue<Api> for Context {
         &mut self,
         surface: &mut Context,
         texture: Resource,
+        _presentation_descriptor: &wgt::PresentationDescriptor,
     ) -> Result<(), crate::SurfaceError> {
         Ok(())
     }

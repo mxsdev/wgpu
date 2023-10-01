@@ -720,7 +720,9 @@ impl<A: hal::Api> Example<A> {
                 None
             };
             self.queue.submit(&[&cmd_buf], fence_param).unwrap();
-            self.queue.present(&mut self.surface, surface_tex).unwrap();
+            self.queue
+                .present(&mut self.surface, surface_tex, &Default::default())
+                .unwrap();
             ctx.used_cmd_bufs.push(cmd_buf);
             ctx.used_views.push(surface_tex_view);
         };

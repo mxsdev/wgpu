@@ -808,9 +808,15 @@ impl crate::Context for Context {
         }
     }
 
-    fn surface_present(&self, texture: &Self::TextureId, detail: &Self::SurfaceOutputDetail) {
+    fn surface_present(
+        &self,
+        texture: &Self::TextureId,
+        detail: &Self::SurfaceOutputDetail,
+        presentation_descriptor: &wgt::PresentationDescriptor,
+    ) {
         let global = &self.0;
-        match wgc::gfx_select!(texture => global.surface_present(detail.surface_id)) {
+        match wgc::gfx_select!(texture => global.surface_present(detail.surface_id, presentation_descriptor))
+        {
             Ok(_status) => (),
             Err(err) => self.handle_error_fatal(err, "Surface::present"),
         }

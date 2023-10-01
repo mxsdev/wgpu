@@ -268,6 +268,10 @@ impl<G: GlobalIdentityHandlerFactory> Global<G> {
                         return Err(DeviceError::from(err).into());
                     }
                     hal::SurfaceError::Outdated => Status::Outdated,
+                    hal::SurfaceError::UnsupportedPresentationDelay(delay) => {
+                        log::error!("Unsupported presentation delay: {}", delay);
+                        Status::Lost
+                    }
                     hal::SurfaceError::Other(msg) => {
                         log::error!("acquire error: {}", msg);
                         Status::Lost
@@ -282,6 +286,7 @@ impl<G: GlobalIdentityHandlerFactory> Global<G> {
     pub fn surface_present<A: HalApi>(
         &self,
         surface_id: SurfaceId,
+        presentation_descriptor: &wgt::PresentationDescriptor,
     ) -> Result<Status, SurfaceError> {
         profiling::scope!("SwapChain::present");
 
@@ -342,7 +347,13 @@ impl<G: GlobalIdentityHandlerFactory> Global<G> {
                             unsafe { suf.unwrap().raw.discard_texture(raw) };
                             Err(hal::SurfaceError::Outdated)
                         } else {
-                            unsafe { device.queue.present(&mut suf.unwrap().raw, raw) }
+                            unsafe {
+                                device.queue.present(
+                                    &mut suf.unwrap().raw,
+                                    raw,
+                                    presentation_descriptor,
+                                )
+                            }
                         }
                     }
                     resource::TextureInner::Native { .. } => unreachable!(),
@@ -360,6 +371,10 @@ impl<G: GlobalIdentityHandlerFactory> Global<G> {
                 hal::SurfaceError::Lost => Ok(Status::Lost),
                 hal::SurfaceError::Device(err) => Err(SurfaceError::from(DeviceError::from(err))),
                 hal::SurfaceError::Outdated => Ok(Status::Outdated),
+                hal::SurfaceError::UnsupportedPresentationDelay(delay) => {
+                    log::error!("Unsupported presentation delay: {}", delay);
+                    Err(SurfaceError::Invalid)
+                }
                 hal::SurfaceError::Other(msg) => {
                     log::error!("acquire error: {}", msg);
                     Err(SurfaceError::Invalid)

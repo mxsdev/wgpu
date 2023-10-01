@@ -1510,6 +1510,7 @@ impl crate::Queue<super::Api> for super::Queue {
         &mut self,
         surface: &mut super::Surface,
         texture: super::Texture,
+        _presentation_descriptor: &wgt::PresentationDescriptor,
     ) -> Result<(), crate::SurfaceError> {
         #[cfg(any(not(target_arch = "wasm32"), target_os = "emscripten"))]
         let gl = unsafe { &self.shared.context.get_without_egl_lock() };

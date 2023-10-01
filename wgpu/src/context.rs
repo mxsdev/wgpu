@@ -175,7 +175,12 @@ pub trait Context: Debug + WasmNotSend + WasmNotSync + Sized {
         SurfaceStatus,
         Self::SurfaceOutputDetail,
     );
-    fn surface_present(&self, texture: &Self::TextureId, detail: &Self::SurfaceOutputDetail);
+    fn surface_present(
+        &self,
+        texture: &Self::TextureId,
+        detail: &Self::SurfaceOutputDetail,
+        presentation_descriptor: &wgt::PresentationDescriptor,
+    );
     fn surface_texture_discard(
         &self,
         texture: &Self::TextureId,
@@ -1280,7 +1285,12 @@ pub(crate) trait DynContext: Debug + WasmNotSend + WasmNotSync {
         SurfaceStatus,
         Box<dyn AnyWasmNotSendSync>,
     );
-    fn surface_present(&self, texture: &ObjectId, detail: &dyn AnyWasmNotSendSync);
+    fn surface_present(
+        &self,
+        texture: &ObjectId,
+        detail: &dyn AnyWasmNotSendSync,
+        presentation_descriptor: &wgt::PresentationDescriptor,
+    );
     fn surface_texture_discard(&self, texture: &ObjectId, detail: &dyn AnyWasmNotSendSync);
     fn surface_query_presentation_statistics(
         &self,
@@ -2229,9 +2239,19 @@ where
         )
     }
 
-    fn surface_present(&self, texture: &ObjectId, detail: &dyn AnyWasmNotSendSync) {
+    fn surface_present(
+        &self,
+        texture: &ObjectId,
+        detail: &dyn AnyWasmNotSendSync,
+        presentation_descriptor: &wgt::PresentationDescriptor,
+    ) {
         let texture = <T::TextureId>::from(*texture);
-        Context::surface_present(self, &texture, detail.downcast_ref().unwrap())
+        Context::surface_present(
+            self,
+            &texture,
+            detail.downcast_ref().unwrap(),
+            presentation_descriptor,
+        )
     }
 
     fn surface_texture_discard(&self, texture: &ObjectId, detail: &dyn AnyWasmNotSendSync) {

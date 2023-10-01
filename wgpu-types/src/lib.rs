@@ -4878,6 +4878,35 @@ pub enum CompositionType {
     Unknown,
 }
 
+#[derive(Default, Debug, Clone, Eq, PartialEq)] // Normal presentations will be PresentationDescriptor::default()
+pub struct PresentationDescriptor {
+    // Must be NoDelay if PRESENT_TIME or PRESENT_VBLANK_COUNT if not true
+    pub presentation_delay: PresentationDelay,
+}
+
+#[derive(Default, Debug, Clone, Copy, Eq, PartialEq)]
+pub enum PresentationDelay {
+    // Queue the frame immediately.
+    #[default]
+    NoDelay,
+    // Queue the frame for N vblanks from now (must be between 1 and 4). Needs PRESENT_VBLANK_COUNT.
+    ScheduleVblank(u8),
+    // Queue the frame for presentation at the given time. Needs PRESENT_TIME.
+    ScheduleTime(PresentationTimestamp),
+    ScheduleMinimumDuration(std::time::Duration),
+}
+
+impl std::fmt::Display for PresentationDelay {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            PresentationDelay::NoDelay => f.write_str("NoDelay"),
+            PresentationDelay::ScheduleVblank(_) => f.write_str("ScheduleVblank"),
+            PresentationDelay::ScheduleTime(_) => f.write_str("ScheduleTime"),
+            PresentationDelay::ScheduleMinimumDuration(_) => f.write_str("ScheduleMinimumDuration"),
+        }
+    }
+}
+
 /// RGBA double precision color.
 ///
 /// This is not to be used as a generic color type, only for specific wgpu interfaces.
