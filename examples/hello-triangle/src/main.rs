@@ -78,6 +78,7 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
         present_mode: wgpu::PresentMode::Fifo,
         alpha_mode: swapchain_capabilities.alpha_modes[0],
         view_formats: vec![],
+        swap_chain_size: Default::default(),
     };
 
     surface.configure(&device, &config);

@@ -40,6 +40,7 @@ impl ViewportDesc {
             present_mode: wgpu::PresentMode::Fifo,
             alpha_mode: caps.alpha_modes[0],
             view_formats: vec![],
+            swap_chain_size: Default::default(),
         };
 
         self.surface.configure(device, &config);

@@ -12,6 +12,7 @@
 #[cfg(any(feature = "serde", test))]
 use serde::{Deserialize, Serialize};
 use std::hash::{Hash, Hasher};
+use std::ops::RangeInclusive;
 use std::path::PathBuf;
 use std::{num::NonZeroU32, ops::Range};
 
@@ -4727,6 +4728,11 @@ pub struct SurfaceCapabilities {
     ///
     /// The usage TextureUsages::RENDER_ATTACHMENT is guaranteed.
     pub usages: TextureUsages,
+    /// Range for the swap chain sizes.
+    ///
+    /// - `swap_chain_sizes.start` must be at least 1.
+    /// - `swap_chain_sizes.end` must be larger or equal to `swap_chain_sizes.start`.
+    pub swap_chain_sizes: RangeInclusive<u32>,
 }
 
 impl Default for SurfaceCapabilities {
@@ -4736,6 +4742,7 @@ impl Default for SurfaceCapabilities {
             present_modes: Vec::new(),
             alpha_modes: vec![CompositeAlphaMode::Opaque],
             usages: TextureUsages::RENDER_ATTACHMENT,
+            swap_chain_sizes: 1..=0,
         }
     }
 }
@@ -4770,6 +4777,9 @@ pub struct SurfaceConfiguration<V> {
     ///
     /// Note: currently, only the srgb-ness is allowed to change. (ex: Rgba8Unorm texture + Rgba8UnormSrgb view)
     pub view_formats: V,
+    /// Number of textures in the swap chain. Must be in
+    /// `SurfaceCapabilities::swap_chain_size` range.
+    pub swap_chain_size: Option<u32>,
 }
 
 impl<V: Clone> SurfaceConfiguration<V> {
@@ -4783,6 +4793,7 @@ impl<V: Clone> SurfaceConfiguration<V> {
             present_mode: self.present_mode,
             alpha_mode: self.alpha_mode,
             view_formats: fun(self.view_formats.clone()),
+            swap_chain_size: self.swap_chain_size,
         }
     }
 }

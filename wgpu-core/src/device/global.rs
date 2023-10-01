@@ -65,6 +65,7 @@ impl<G: GlobalIdentityHandlerFactory> Global<G> {
                 present_modes: hal_caps.present_modes,
                 alpha_modes: hal_caps.composite_alpha_modes,
                 usages,
+                swap_chain_sizes: hal_caps.swap_chain_sizes,
             })
         })
     }
@@ -2290,8 +2291,11 @@ impl<G: GlobalIdentityHandlerFactory> Global<G> {
                 }
             }
 
-            let num_frames = present::DESIRED_NUM_FRAMES
+            let num_frames = config
+                .swap_chain_size
+                .unwrap_or(present::DESIRED_NUM_FRAMES)
                 .clamp(*caps.swap_chain_sizes.start(), *caps.swap_chain_sizes.end());
+
             let mut hal_config = hal::SurfaceConfiguration {
                 swap_chain_size: num_frames,
                 present_mode: config.present_mode,

@@ -561,6 +561,7 @@ pub fn test<E: Example>(mut params: FrameworkRefTest) {
                     present_mode: wgpu::PresentMode::Fifo,
                     alpha_mode: wgpu::CompositeAlphaMode::Auto,
                     view_formats: vec![wgpu::TextureFormat::Rgba8UnormSrgb],
+                    swap_chain_size: Default::default(),
                 },
                 &ctx.adapter,
                 &ctx.device,

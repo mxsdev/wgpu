@@ -4887,6 +4887,7 @@ impl Surface {
             present_mode: *caps.present_modes.get(0)?,
             alpha_mode: wgt::CompositeAlphaMode::Auto,
             view_formats: vec![],
+            swap_chain_size: Default::default(),
         })
     }
 
